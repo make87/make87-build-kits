@@ -131,7 +131,7 @@ elif [ "$DEV_RUN_MODE" = "ssh" ]; then
     tail -f /dev/null
 else
     # pip install, then run /home/state/code/app/main.py
-    cd /home/state/code
+    cd /home/state/code || exit 1
     pip install -e .
     python -u app/main.py
 fi
