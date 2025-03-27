@@ -10,7 +10,8 @@ configurations and templates that can be used to quickly set up and deploy appli
 ## Usage
 
 To learn more about how to use Build Kits, please refer to
-the [documentation](https://docs.make87.com/platform_components/applications/build_kits/).
+the [documentation](https://docs.make87.com/guides/application_development/build_kits/reference_build_kits/).
+Also review Build Kit-specific instructions inside every Build Kit's directory.
 
 ## Contributing
 
