@@ -18,8 +18,16 @@ WORKDIR /app
 
 COPY . .
 
-RUN ${VIRTUAL_ENV}/bin/python3 -m pip install -U pip \
-    && ${VIRTUAL_ENV}/bin/python3 -m pip install .
+RUN ${VIRTUAL_ENV}/bin/python3 -m pip install -U pip
+RUN set -eux; \
+    if [ -f ./pip.conf ]; then \
+      echo "Found pip.conf, pointing PIP_CONFIG_FILE at it"; \
+      export PIP_CONFIG_FILE="$(pwd)/pip.conf"; \
+    else \
+      echo "No pip.conf found, using default indexes"; \
+    fi; \
+    ${VIRTUAL_ENV}/bin/python3 -m pip install .
+
 
 FROM ghcr.io/make87/python3-debian12:latest
 

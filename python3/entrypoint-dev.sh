@@ -132,6 +132,15 @@ elif [ "$DEV_RUN_MODE" = "ssh" ]; then
 else
     # pip install, then run /home/state/code/app/main.py
     cd /home/state/code || exit 1
+
+    # if you’ve dropped a pip.conf here, point pip at it
+    if [ -f pip.conf ]; then
+      echo "Found pip.conf, using it for installation"
+      export PIP_CONFIG_FILE="$(pwd)/pip.conf"
+    else
+      echo "No pip.conf found, installing against default index"
+    fi
+
     pip install -e .
     python -u app/main.py
 fi
