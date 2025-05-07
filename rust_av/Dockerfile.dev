@@ -13,6 +13,7 @@ RUN rustup component add rust-analyzer
 
 RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
+        build-essential \
         libavutil-dev \
         libavformat-dev \
         libavfilter-dev \

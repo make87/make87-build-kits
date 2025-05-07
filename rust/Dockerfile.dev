@@ -11,6 +11,10 @@ RUN ln -s /usr/local/cargo/bin/cargo /usr/local/bin/cargo \
 # Ensure Rust Analyzer is installed via rustup
 RUN rustup component add rust-analyzer
 
+RUN apt-get update \
+    && apt install --no-install-suggests --no-install-recommends -y \
+        build-essential
+
 ############################################################################################################
 
 # Install SSH Server

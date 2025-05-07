@@ -3,6 +3,7 @@ FROM ghcr.io/make87/rust:1-bookworm AS build-image
 RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
         jq \
+        build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
