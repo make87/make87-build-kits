@@ -3,6 +3,7 @@ FROM ghcr.io/make87/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 RUN apt-get update \
     && apt-get install -y \
       build-essential \
+      cmake \
       curl \
       jq \
     && apt-get clean \

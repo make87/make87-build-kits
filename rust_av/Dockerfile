@@ -4,6 +4,7 @@ RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
         jq \
         build-essential \
+        cmake \
         libavutil-dev \
         libavformat-dev \
         libavfilter-dev \

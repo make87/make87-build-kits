@@ -4,6 +4,7 @@ RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
         jq \
         build-essential \
+        cmake \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
