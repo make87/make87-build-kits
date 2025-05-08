@@ -29,7 +29,7 @@ RUN binary_name=$(cargo metadata --format-version=1 --no-deps | \
     && echo "Binary name: $binary_name" \
     && cp target/release/$binary_name /main
 
-FROM lscr.io/linuxserver/ffmpeg:7.1.1
+FROM ghcr.io/make87/ffmpeg:7.1.1
 
 WORKDIR /app
 
