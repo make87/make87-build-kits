@@ -5,6 +5,7 @@ RUN apt-get update \
         jq \
         build-essential \
         cmake \
+        nasm \
         libavutil-dev \
         libavformat-dev \
         libavfilter-dev \

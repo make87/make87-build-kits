@@ -4,6 +4,7 @@ RUN apt-get update \
     && apt-get install -y \
       build-essential \
       cmake \
+      nasm \
       curl \
       jq \
     && apt-get clean \

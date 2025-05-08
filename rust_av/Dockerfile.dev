@@ -15,6 +15,7 @@ RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
         build-essential \
         cmake \
+        nasm \
         libavutil-dev \
         libavformat-dev \
         libavfilter-dev \
