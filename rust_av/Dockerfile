@@ -29,17 +29,14 @@ RUN binary_name=$(cargo metadata --format-version=1 --no-deps | \
     && echo "Binary name: $binary_name" \
     && cp target/release/$binary_name /main
 
-FROM ghcr.io/make87/debian:bookworm-slim
-
-RUN apt-get update \
-    && apt install --no-install-suggests --no-install-recommends -y \
-        ffmpeg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+FROM lscr.io/linuxserver/ffmpeg:7.1.1
 
 WORKDIR /app
 
 # Copy the workspace from the builders
 COPY --from=build-image /main /app/main
 
-CMD ["/app/main"]
+RUN chmod +x /app/main
+
+ENTRYPOINT ["/app/main"]
+
