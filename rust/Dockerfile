@@ -5,6 +5,7 @@ RUN apt-get update \
         jq \
         build-essential \
         cmake \
+        nasm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
