@@ -125,8 +125,8 @@ EXPOSE 3000
 
 ############################################################################################################
 
-COPY entrypoint-dev.sh /home/root/entrypoint-dev.sh
-RUN chmod +x /home/root/entrypoint-dev.sh
+COPY entrypoint-dev.sh /entrypoint-dev.sh
+RUN chmod +x /entrypoint-dev.sh
 
 
-ENTRYPOINT ["/home/root/entrypoint-dev.sh", "/home/state/code"]
+ENTRYPOINT ["/entrypoint-dev.sh", "/home/state/code"]
