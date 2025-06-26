@@ -1,4 +1,6 @@
 FROM ghcr.io/make87/rust:1-bookworm AS build-image
+ARG CARGO_BUILD_FLAGS=""
+ENV CARGO_BUILD_FLAGS=${CARGO_BUILD_FLAGS}
 
 RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
@@ -19,8 +21,7 @@ WORKDIR /app
 COPY Cargo.toml .
 COPY src ./src
 
-# Install dependencies for examples
-RUN cargo build --release
+RUN sh -c "cargo build --release $CARGO_BUILD_FLAGS"
 
 # Extract the binary name using cargo metadata and jq
 # and copy the binary to /binary

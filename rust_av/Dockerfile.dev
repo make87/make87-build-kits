@@ -1,4 +1,6 @@
 FROM ghcr.io/make87/rust:1-bookworm AS build-rust-base-image
+ARG CARGO_BUILD_FLAGS=""
+ENV CARGO_BUILD_FLAGS=${CARGO_BUILD_FLAGS}
 
 # Set PATH after installation
 ENV PATH="/usr/local/rustup/bin:/usr/local/cargo/bin:${PATH}"
