@@ -11,6 +11,7 @@ RUN apt-get update \
         python3-venv \
     && python3 -m venv ${VIRTUAL_ENV} \
     && ${VIRTUAL_ENV}/bin/pip install --upgrade pip setuptools wheel \
+    && ${VIRTUAL_ENV}/bin/pip install uv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,7 +19,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN ${VIRTUAL_ENV}/bin/python3 -m pip install -U pip
+ARG EXTRAS=""
+
 RUN set -eux; \
     if [ -f ./pip.conf ]; then \
       echo "Found pip.conf, pointing PIP_CONFIG_FILE at it"; \
@@ -26,8 +28,11 @@ RUN set -eux; \
     else \
       echo "No pip.conf found, using default indexes"; \
     fi; \
-    ${VIRTUAL_ENV}/bin/python3 -m pip install .
-
+    if [ -n "$EXTRAS" ]; then \
+      ${VIRTUAL_ENV}/bin/uv pip install ".[${EXTRAS}]"; \
+    else \
+      ${VIRTUAL_ENV}/bin/uv pip install .; \
+    fi
 
 FROM ghcr.io/make87/python3-debian12:latest
 
