@@ -13,6 +13,9 @@ if [ -f "/root/.ssh/authorized_keys_src" ]; then
   chmod 600 /root/.ssh/authorized_keys
 fi
 
+# Start the SSH service
+sudo service ssh start
+
 # Set up Git config
 git config --global user.email "make87"
 git config --global user.name "user"
@@ -59,24 +62,4 @@ if [ -n "$GIT_URL" ]; then
     fi
 fi
 
-cd /home/state/code || exit 1
-
-cd /home/state/code || exit 1
-
-# Set pip config if pip.conf is present
-if [ -f pip.conf ]; then
-  echo "Found pip.conf, using it for installation"
-  export PIP_CONFIG_FILE="$(pwd)/pip.conf"
-else
-  echo "No pip.conf found, installing against default index"
-fi
-
-# Install with uv pip
-if [ -n "$EXTRAS" ]; then
-  uv pip install -e ".[${EXTRAS}]"
-else
-  uv pip install -e .
-fi
-
-# Start the app
-python -u app/main.py
+tail -f /dev/null

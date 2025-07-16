@@ -13,12 +13,9 @@ if [ -f "/root/.ssh/authorized_keys_src" ]; then
   chmod 600 /root/.ssh/authorized_keys
 fi
 
-# Start the SSH service
-sudo service ssh start
-
 # Set up Git config
 git config --global user.email "make87"
-git config --global user.name "todo@make87.com"
+git config --global user.name "user"
 
 # Clone repository if GIT_URL is provided
 TARGET_DIR="/home/state/code"
@@ -62,95 +59,6 @@ if [ -n "$GIT_URL" ]; then
     fi
 fi
 
-
-# if .vscode dir does not exit create it and add config files
-# Path to the workspace
-WORKSPACE_DIR="/home/state/code"
-
-# Path to the .vscode directory
-VSCODE_DIR="$WORKSPACE_DIR/.vscode"
-
-PACKAGE_NAME=$(grep '^name =' /home/state/code/Cargo.toml | awk -F '"' '{print $2}')
-# Check if .vscode directory exists; if not, create it and add config files
-if [ ! -d "$VSCODE_DIR" ]; then
-  echo "Creating .vscode directory and adding Rust configuration files..."
-  mkdir -p "$VSCODE_DIR"
-
-  # Create settings.json with Rust analyzer configurations
-  cat <<EOF > "$VSCODE_DIR/settings.json"
-{
-    "rust-analyzer.serverPath": "/usr/local/cargo/bin/rust-analyzer",
-    "rust-analyzer.checkOnSave.command": "clippy",
-    "rust-analyzer.procMacro.enable": true,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true,
-        "source.fixAll": true
-    },
-    "rustfmt.enableRangeFormatting": true,
-    "rust-analyzer.cargo.runBuildScripts": true,
-    "rust-analyzer.cargo.autoreload": true,
-    "rust-analyzer.inlayHints.enable": true
-}
-EOF
-
-  # Create launch.json to set up the debug configuration with LLDB
-  cat <<EOF > "$VSCODE_DIR/launch.json"
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug Rust",
-            "type": "lldb",
-            "request": "launch",
-            "program": "\${workspaceFolder}/target/debug/${PACKAGE_NAME}",
-            "args": [],
-            "cwd": "\${workspaceFolder}",
-            "preLaunchTask": "cargo build",
-            "stopOnEntry": false,
-            "sourceLanguages": ["rust"]
-        }
-    ]
-}
-EOF
-
-  # Optional: Create tasks.json for build tasks
-  cat <<EOF > "$VSCODE_DIR/tasks.json"
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "cargo build",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "build"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
-                "\\$rustc"
-            ]
-        }
-    ]
-}
-EOF
-
-  echo ".vscode configuration for Rust has been set up."
-fi
-
-DEV_RUN_MODE=${DEV_RUN_MODE:-ide}
-if [ "$DEV_RUN_MODE" = "ide" ]; then
-    # Start OpenVSCode Server
-    "$OPENVSCODE_SERVER_ROOT/bin/openvscode-server" --host=0.0.0.0 --port=3000 --without-connection-token --default-folder "$1"
-elif [ "$DEV_RUN_MODE" = "ssh" ]; then
-    # SSH server is already running. Keep the container running
-    tail -f /dev/null
-else
-    # pip install, then run /home/state/code/app/main.py
-    cd /home/state/code
-    cargo build
-    cargo run
-fi
+cd /home/state/code
+cargo build
+cargo run
