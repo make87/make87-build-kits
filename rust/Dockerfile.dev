@@ -16,7 +16,7 @@ RUN apt-get update \
         build-essential \
         cmake \
         nasm \
-        git \
+        git
 
 # Copy the startup script
 COPY entrypoint-dev.sh /entrypoint-dev.sh
