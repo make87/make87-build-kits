@@ -18,8 +18,10 @@ ENV PATH="/usr/local/rustup/bin:/usr/local/cargo/bin:${PATH}"
 # Create a profile script to export PATH
 RUN echo 'export PATH="/usr/local/rustup/bin:/usr/local/cargo/bin:${PATH}"' > /etc/profile.d/rust.sh
 # Symlink cargo and rustup to /usr/local/bin
-RUN if [ ! -e /usr/local/bin/cargo ]; then ln -s /usr/local/cargo/bin/cargo /usr/local/bin/cargo; fi && \
-    if [ ! -e /usr/local/bin/rustup ]; then ln -s /usr/local/cargo/bin/rustup /usr/local/bin/rustup; fi
+RUN [ "$(readlink /usr/local/bin/cargo || true)" != "/usr/local/cargo/bin/cargo" ] && \
+    ln -sf /usr/local/cargo/bin/cargo /usr/local/bin/cargo || true && \
+    [ "$(readlink /usr/local/bin/rustup || true)" != "/usr/local/cargo/bin/rustup" ] && \
+    ln -sf /usr/local/cargo/bin/rustup /usr/local/bin/rustup || true
 
 # Ensure Rust Analyzer is installed via rustup
 RUN rustup component add rust-analyzer
