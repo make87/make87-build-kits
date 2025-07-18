@@ -19,6 +19,9 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# add uv to PATH
+ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
+
 # Copy the startup script
 COPY entrypoint-dev.sh /entrypoint-dev.sh
 RUN chmod +x /entrypoint-dev.sh
