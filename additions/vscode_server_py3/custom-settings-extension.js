@@ -19,7 +19,7 @@ function activate(context) {
     terminal.sendText(`[ -f "${pipConfPath}" ] && export PIP_CONFIG_FILE="${pipConfPath}" && echo "Found pip.conf, using custom pip config" || echo "No pip.conf found, installing against default index"`);
 
     // 3) Install the package in editable mode
-    terminal.sendText('pip install -e .');
+    terminal.sendText('uv pip install -e .');
 
     // Register terminal for disposal
     context.subscriptions.push(terminal);
