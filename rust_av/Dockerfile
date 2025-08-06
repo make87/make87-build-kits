@@ -1,18 +1,19 @@
-FROM ghcr.io/make87/rust:1-bookworm AS build-image
+# use debian trixie for ffmpeg 7 libs during build phase
+FROM ghcr.io/make87/rust:1-trixie AS build-image
 ARG CARGO_BUILD_FLAGS=""
 ENV CARGO_BUILD_FLAGS=${CARGO_BUILD_FLAGS}
 
 RUN apt-get update \
     && apt install --no-install-suggests --no-install-recommends -y \
-        jq \
-        build-essential \
-        cmake \
-        nasm \
-        libavutil-dev \
-        libavformat-dev \
-        libavfilter-dev \
-        libavdevice-dev \
-        libclang-dev \
+    jq \
+    build-essential \
+    cmake \
+    nasm \
+    libavutil-dev \
+    libavformat-dev \
+    libavfilter-dev \
+    libavdevice-dev \
+    libclang-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,4 +41,3 @@ COPY --from=build-image /main /app/main
 RUN chmod +x /app/main
 
 ENTRYPOINT ["/app/main"]
-
