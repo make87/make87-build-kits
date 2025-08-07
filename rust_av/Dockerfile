@@ -41,10 +41,6 @@ RUN apt-get update && apt-get install -y \
     libavutil58 \
     libavcodec60 \
     libavformat60 \
-    libavdevice60 \
-    libavfilter9 \
-    libswresample4 \
-    libswscale7 \
     && rm -rf /var/lib/apt/lists/*
 
 
