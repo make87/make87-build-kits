@@ -35,15 +35,6 @@ RUN binary_name=$(cargo metadata --format-version=1 --no-deps | \
 
 FROM ghcr.io/make87/ffmpeg:7.1.1
 
-
-# Install the FFmpeg shared libraries only
-RUN apt-get update && apt-get install -y \
-    libavutil58 \
-    libavcodec60 \
-    libavformat60 \
-    && rm -rf /var/lib/apt/lists/*
-
-
 WORKDIR /app
 COPY --from=build-image /main /app/main
 RUN chmod +x /app/main
