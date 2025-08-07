@@ -19,7 +19,6 @@ RUN apt-get update \
         cmake \
         nasm \
         git \
-        libssl-dev \
         libavutil-dev \
         libavformat-dev \
         libavfilter-dev \
