@@ -33,12 +33,6 @@ RUN binary_name=$(cargo metadata --format-version=1 --no-deps | \
 
 FROM ghcr.io/make87/ffmpeg:7.1.1
 
-RUN apt-get update && apt-get install -y \
-    libavutil58 \
-    libavformat60 \
-    libavcodec60 \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 # Copy the workspace from the builders
