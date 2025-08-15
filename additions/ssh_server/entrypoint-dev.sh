@@ -14,41 +14,29 @@ if [ -f "/root/.ssh/authorized_keys_src" ]; then
   chmod 600 /root/.ssh/authorized_keys
 fi
 
-# === Import a safe subset of PID1 env for SSH sessions ===
-allow_re='^(PATH|LANG|LC_|TZ|HOME|TERM|COLORTERM|http_proxy|https_proxy|no_proxy|SSL_CERT_FILE|SSL_CERT_DIR|\
-MAKE87_.*|RUST.*|CARGO.*|PYTHON.*|PIP.*|VIRTUAL_ENV|CONDA.*|NODE.*|NPM.*|PNPM_HOME|YARN_.*|GOPATH|GOROOT|JAVA_HOME|\
-MAVEN_HOME|GRADLE_HOME|PKG_CONFIG_PATH|LD_LIBRARY_PATH|LIBRARY_PATH|CMAKE_PREFIX_PATH|CC|CXX)$'
-
+# --- we have to explicitly "forward" the container env vars to SSHd otherwise remote IDEs won't be able to use them ---
 mkdir -p /etc/environment.d
 : > /etc/environment.d/00-docker-env.conf
 : > /etc/profile.d/00-docker-env.sh
 
-# iterate null-separated env entries from PID 1
-tr '\0' '\n' < /proc/1/environ | while IFS= read -r kv; do
-  name=${kv%%=*}
-  val=${kv#*=}
+deny_re='^(SSH_.*|PWD|OLDPWD|_=|PROMPT_COMMAND|BASH_ENV|ENV|LD_PRELOAD)$'
 
-  # skip empties and obviously unsafe
+while IFS= read -r -d '' kv; do
+  name=${kv%%=*}; val=${kv#*=}
   [ -z "$name" ] && continue
-  case "$name" in
-    # blacklist a few you *never* want to inject
-    SSH_*|PWD|OLDPWD|_=|PROMPT_COMMAND|BASH_ENV|ENV) continue ;;
-  esac
+  [[ "$name" =~ $deny_re ]] && continue
 
-  # allow broad, tool-friendly set
-  if echo "$name" | grep -Eq "$allow_re"; then
-    # quote for /etc/environment.d (double-quote, escape \ and ")
-    esc_env=$(printf '%s' "$val" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-    printf '%s="%s"\n' "$name" "$esc_env" >> /etc/environment.d/00-docker-env.conf
+  esc_env=$(printf '%s' "$val" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+  printf '%s="%s"\n' "$name" "$esc_env" >> /etc/environment.d/00-docker-env.conf
 
-    # quote for shell export (single-quote with safe escaping)
-    esc_sh=${val//\'/\'\"\'\"\'}
-    printf 'export %s=%s\n' "$name" "'$esc_sh'" >> /etc/profile.d/00-docker-env.sh
-  fi
-done
+  esc_sh=${val//\'/\'\"\'\"\'}
+  printf 'export %s=%s\n' "$name" "'$esc_sh'" >> /etc/profile.d/00-docker-env.sh
+done < /proc/1/environ
 
 chmod 600 /etc/environment.d/00-docker-env.conf /etc/profile.d/00-docker-env.sh
-# ==========================================================
+
+# ----------------------------------------------------
+
 
 
 
