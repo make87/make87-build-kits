@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Give permissions to use the /tmp directory. Required for pip package installs
 sudo chmod 1777 /tmp
@@ -12,6 +13,23 @@ if [ -f "/root/.ssh/authorized_keys_src" ]; then
   chown root:root /root/.ssh/authorized_keys
   chmod 600 /root/.ssh/authorized_keys
 fi
+
+# === Persist dynamic MAKE87_CONFIG for SSH logins (Debian/PAM + shells) ===
+if [ -n "${MAKE87_CONFIG:-}" ]; then
+  # For PAM via pam_env (Debian bookworm+ reads /etc/environment.d)
+  mkdir -p /etc/environment.d
+  esc_env=$(printf '%s' "$MAKE87_CONFIG" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+  printf 'MAKE87_CONFIG="%s"\n' "$esc_env" > /etc/environment.d/99-make87.conf
+
+  # For interactive shells via /etc/profile.d
+  esc_profile=${MAKE87_CONFIG//\'/\'\"\'\"\'}
+  printf "export MAKE87_CONFIG='%s'\n" "$esc_profile" > /etc/profile.d/make87.sh
+
+  # Lock down (JSON contains creds)
+  chmod 600 /etc/environment.d/99-make87.conf /etc/profile.d/make87.sh || true
+fi
+# ========================================================================
+
 
 # Start the SSH service
 sudo service ssh start
