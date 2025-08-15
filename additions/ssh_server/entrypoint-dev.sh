@@ -14,21 +14,42 @@ if [ -f "/root/.ssh/authorized_keys_src" ]; then
   chmod 600 /root/.ssh/authorized_keys
 fi
 
-# === Persist dynamic MAKE87_CONFIG for SSH logins (Debian/PAM + shells) ===
-if [ -n "${MAKE87_CONFIG:-}" ]; then
-  # For PAM via pam_env (Debian bookworm+ reads /etc/environment.d)
-  mkdir -p /etc/environment.d
-  esc_env=$(printf '%s' "$MAKE87_CONFIG" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
-  printf 'MAKE87_CONFIG="%s"\n' "$esc_env" > /etc/environment.d/99-make87.conf
+# === Import a safe subset of PID1 env for SSH sessions ===
+allow_re='^(PATH|LANG|LC_|TZ|HOME|TERM|COLORTERM|http_proxy|https_proxy|no_proxy|SSL_CERT_FILE|SSL_CERT_DIR|\
+MAKE87_.*|RUST.*|CARGO.*|PYTHON.*|PIP.*|VIRTUAL_ENV|CONDA.*|NODE.*|NPM.*|PNPM_HOME|YARN_.*|GOPATH|GOROOT|JAVA_HOME|\
+MAVEN_HOME|GRADLE_HOME|PKG_CONFIG_PATH|LD_LIBRARY_PATH|LIBRARY_PATH|CMAKE_PREFIX_PATH|CC|CXX)$'
 
-  # For interactive shells via /etc/profile.d
-  esc_profile=${MAKE87_CONFIG//\'/\'\"\'\"\'}
-  printf "export MAKE87_CONFIG='%s'\n" "$esc_profile" > /etc/profile.d/make87.sh
+mkdir -p /etc/environment.d
+: > /etc/environment.d/00-docker-env.conf
+: > /etc/profile.d/00-docker-env.sh
 
-  # Lock down (JSON contains creds)
-  chmod 600 /etc/environment.d/99-make87.conf /etc/profile.d/make87.sh || true
-fi
-# ========================================================================
+# iterate null-separated env entries from PID 1
+tr '\0' '\n' < /proc/1/environ | while IFS= read -r kv; do
+  name=${kv%%=*}
+  val=${kv#*=}
+
+  # skip empties and obviously unsafe
+  [ -z "$name" ] && continue
+  case "$name" in
+    # blacklist a few you *never* want to inject
+    SSH_*|PWD|OLDPWD|_=|PROMPT_COMMAND|BASH_ENV|ENV) continue ;;
+  esac
+
+  # allow broad, tool-friendly set
+  if echo "$name" | grep -Eq "$allow_re"; then
+    # quote for /etc/environment.d (double-quote, escape \ and ")
+    esc_env=$(printf '%s' "$val" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+    printf '%s="%s"\n' "$name" "$esc_env" >> /etc/environment.d/00-docker-env.conf
+
+    # quote for shell export (single-quote with safe escaping)
+    esc_sh=${val//\'/\'\"\'\"\'}
+    printf 'export %s=%s\n' "$name" "'$esc_sh'" >> /etc/profile.d/00-docker-env.sh
+  fi
+done
+
+chmod 600 /etc/environment.d/00-docker-env.conf /etc/profile.d/00-docker-env.sh
+# ==========================================================
+
 
 
 # Start the SSH service
