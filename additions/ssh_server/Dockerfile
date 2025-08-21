@@ -8,11 +8,11 @@ FROM base-image
 
 RUN apt-get update \
     && apt-get install -y --no-install-suggests --no-install-recommends \
-      openssh-server \
-      git \
-      sudo \
-      libatomic1 \
-      wget \
+    openssh-server \
+    git \
+    sudo \
+    libatomic1 \
+    wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -29,6 +29,12 @@ RUN sed -i '/^AuthorizedKeysFile /d' /etc/ssh/sshd_config && \
     echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
     echo "UsePAM no" >> /etc/ssh/sshd_config && \
     echo "AuthorizedKeysFile /root/.ssh/authorized_keys" >> /etc/ssh/sshd_config
+
+# Safe interactive bash defaults - session shouldn't end if a process returns 1
+RUN printf '%s\n' \
+    'case $- in *i*) set +e; trap - INT ERR ;; esac' \
+    '[ -f /etc/profile.d/00-docker-env.sh ] && . /etc/profile.d/00-docker-env.sh' \
+    >> /root/.bashrc
 
 EXPOSE 22
 
