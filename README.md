@@ -1,6 +1,6 @@
-> ## ⚠️ Deprecated (legacy make87 app-platform SDK)
+> ## ⚠️ Deprecated (legacy make87 app-platform build kits)
 >
-> This SDK supported the legacy make87 "application SDK integration" workflow.
+> These build kits supported the legacy make87 "application build kit" workflow.
 > make87 has pivoted to a CLI/agent-based device management workflow.
 >
 > **This package is unmaintained and will receive no further updates or fixes.**
